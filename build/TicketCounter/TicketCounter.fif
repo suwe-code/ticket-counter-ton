@@ -1,0 +1,64 @@
+"Asm.fif" include
+// automatically generated from ticket_counter.tolk
+PROGRAM{
+  0 DECLMETHOD onInternalMessage()
+  117456 DECLMETHOD currentCounter()
+  // 2 functions inlined in-place:
+  // - Storage.load (3 calls)
+  // - Storage.save (2 calls)
+  // contracts/ticket_counter.tolk:21
+  onInternalMessage() PROC:<{ 	//  in.body
+    // 21: fun onInternalMessage(in: InMessage)
+    INMSG_BOUNCED           	//  in.body '1
+    0 THROWIF               	//  in.body
+    // 22: val msg = lazy AllowedMessage.fromSlice(in.body)
+    DUP                     	//  in.body lazyS
+    // 24: match (msg)
+    x{7e8764ef} SDBEGINSQ   	//  in.body lazyS '10
+    IFJMP:<{                	//  in.body lazyS
+      // 6: return Storage.fromCell(contract.getData())
+      NIP                   	//  lazyS
+      c4 PUSH               	//  lazyS '15
+      // 26: var storage = lazy Storage.load()
+      CTOS                  	//  lazyS lazyS
+      // 27: storage.counter = storage.counter + msg.increaseBy
+      SWAP                  	//  lazyS lazyS
+      32 PLDU               	//  lazyS msg.USlot1
+      SWAP                  	//  msg.USlot1 lazyS
+      64 PLDU               	//  msg.USlot1 storage
+      ADD                   	//  storage
+      // 10: contract.setData(self.toCell())
+      NEWC                  	//  storage b
+      64 STU                	//  b
+      ENDC                  	//  '27
+      c4 POP                	// 
+    }>                      	//  in.body lazyS
+    // 24: match (msg)
+    x{3a752f06} SDBEGINSQ   	//  in.body lazyS '10
+    NIP                     	//  in.body '10
+    IFJMP:<{                	//  in.body
+      // 6: return Storage.fromCell(contract.getData())
+      DROP                  	// 
+      // 10: contract.setData(self.toCell())
+      0 PUSHINT
+      NEWC
+      64 STU                	//  b
+      ENDC                  	//  '42
+      c4 POP                	// 
+    }>                      	//  in.body
+    // 38: assert(in.body.isEmpty()) throw 0xFFFF
+    16 PUSHPOW2DEC          	//  in.body '43=65535
+    SWAP                    	//  '43=65535 in.body
+    SEMPTY                  	//  '43=65535 '44
+    THROWANYIFNOT           	// 
+  }>
+  // contracts/ticket_counter.tolk:43
+  currentCounter() PROC:<{    	// 
+    // 6: return Storage.fromCell(contract.getData())
+    c4 PUSH                 	//  '2
+    // 44: val storage = lazy Storage.load()
+    CTOS                    	//  lazyS
+    // 45: return storage.counter
+    64 PLDU                 	//  storage
+  }>
+}END>c
