@@ -1,64 +1,270 @@
 "Asm.fif" include
 // automatically generated from ticket_counter.tolk
 PROGRAM{
+  DECLPROC Storage.buyTickets()
   0 DECLMETHOD onInternalMessage()
-  117456 DECLMETHOD currentCounter()
-  // 2 functions inlined in-place:
-  // - Storage.load (3 calls)
-  // - Storage.save (2 calls)
-  // contracts/ticket_counter.tolk:21
+  67686 DECLMETHOD maxTickets()
+  84918 DECLMETHOD ticketsSold()
+  119126 DECLMETHOD ticketsRemaining()
+  108076 DECLMETHOD pricePerTicket()
+  129401 DECLMETHOD totalRevenue()
+  80265 DECLMETHOD myTickets()
+  // 4 functions inlined in-place:
+  // - Storage.load (7 calls)
+  // - Storage.save (3 calls)
+  // - Storage.resetTickets (1 call)
+  // - MapLookupResult<uint32>.loadValue (2 calls)
+  // contracts/ticket_counter.tolk:27
+  Storage.buyTickets() PROC:<{	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid
+    // 28: assert(quantity > 0) throw 100
+    OVER                    	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid quantity
+    0 GTINT                 	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid '10
+    100 THROWIFNOT          	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid
+    // 29: assert(self.price > 0) throw 101
+    s4 PUSH                 	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid self.price
+    0 GTINT                 	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid '13
+    101 THROWIFNOT          	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid
+    s5 s1 PUSH2             	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid self.sold quantity
+    // 32: assert(self.sold + quantity <= self.maxTickets) throw 102
+    ADD                     	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid '15
+    s7 PUSH                 	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid '15 self.maxTickets
+    LEQ                     	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid '16
+    102 THROWIFNOT          	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid
+    s4 s1 PUSH2             	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid self.price quantity
+    // 35: assert(paid == self.price * quantity) throw 103
+    MUL                     	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity paid '18
+    EQUAL                   	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity '19
+    103 THROWIFNOT          	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity
+    s1 s2 PUSH2
+    // 38: val existing = self.tickets.get(buyer)
+    267 PUSHINT             	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity buyer self.tickets '26=267
+    DICTGET NULLSWAPIFNOT   	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity existing.rawSlice existing.isFound
+    // 39: var current: uint32 = 0
+    0 PUSHINT               	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity existing.rawSlice existing.isFound current=0
+    // 40: if (existing.isFound)
+    SWAP                    	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity existing.rawSlice current=0 existing.isFound
+    IF:<{                   	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity existing.rawSlice current=0
+      // 979: assertEndAfterReading: true
+      DROP                  	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity s
+      // 978: return TValue.fromSlice(self.rawSlice!
+      32 LDU                	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity '34 s
+      ENDS                  	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity current
+    }>ELSE<{
+      NIP                   	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity current=0
+    }>
+    // 44: self.tickets.set(buyer, current + quantity)
+    OVER                    	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity current quantity
+    ADD                     	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity '35
+    NEWC                    	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity '35 '36
+    32 STU                  	//  self.owner self.maxTickets self.sold self.price self.tickets buyer quantity '36
+    s0 s0 s3 XCHG3
+    267 PUSHINT             	//  self.owner self.maxTickets self.sold self.price quantity '36 buyer self.tickets '42=267
+    DICTSETB                	//  self.owner self.maxTickets self.sold self.price quantity self.tickets
+    s0 s3 XCHG
+    // 45: self.sold = self.sold + quantity
+    ADD                     	//  self.owner self.maxTickets self.tickets self.price self.sold
+    // 27: fun Storage.buyTickets(mutate self, buyer: address, quantity: uint32, paid: coins)
+    s0 s2 XCHG              	//  self.owner self.maxTickets self.sold self.price self.tickets
+  }>
+  // contracts/ticket_counter.tolk:59
   onInternalMessage() PROC:<{ 	//  in.body
-    // 21: fun onInternalMessage(in: InMessage)
+    // 59: fun onInternalMessage(in: InMessage)
     INMSG_BOUNCED           	//  in.body '1
     0 THROWIF               	//  in.body
-    // 22: val msg = lazy AllowedMessage.fromSlice(in.body)
-    DUP                     	//  in.body lazyS
-    // 24: match (msg)
-    x{7e8764ef} SDBEGINSQ   	//  in.body lazyS '10
-    IFJMP:<{                	//  in.body lazyS
-      // 6: return Storage.fromCell(contract.getData())
-      NIP                   	//  lazyS
-      c4 PUSH               	//  lazyS '15
-      // 26: var storage = lazy Storage.load()
-      CTOS                  	//  lazyS lazyS
-      // 27: storage.counter = storage.counter + msg.increaseBy
-      SWAP                  	//  lazyS lazyS
-      32 PLDU               	//  lazyS msg.USlot1
-      SWAP                  	//  msg.USlot1 lazyS
-      64 PLDU               	//  msg.USlot1 storage
-      ADD                   	//  storage
-      // 10: contract.setData(self.toCell())
-      NEWC                  	//  storage b
-      64 STU                	//  b
-      ENDC                  	//  '27
+    // 10: return Storage.fromCell(contract.getData())
+    c4 PUSH                 	//  in.body '10
+    // 60: var storage = lazy Storage.load()
+    CTOS                    	//  in.body lazyS
+    s1 s(-1) PUXC           	//  in.body lazyS lazyS
+    // 63: match (msg)
+    LDSTDADDR               	//  in.body lazyS storage.owner lazyS
+    32 LDU                  	//  in.body lazyS storage.owner storage.maxTickets lazyS
+    32 LDU                  	//  in.body lazyS storage.owner storage.maxTickets storage.sold lazyS
+    LDGRAMS                 	//  in.body lazyS storage.owner storage.maxTickets storage.sold storage.price lazyS
+    PLDOPTREF               	//  in.body lazyS storage.owner storage.maxTickets storage.sold storage.price storage.tickets
+    s0 s5 XCHG              	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price lazyS
+    x{3edb9d9a} SDBEGINSQ   	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price lazyS '27
+    IFJMP:<{                	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price lazyS
+      // 65: storage.buyTickets(in.senderAddress, msg.quantity, in.valueCoins)
+      s6 POP                	//  lazyS storage.tickets storage.owner storage.maxTickets storage.sold storage.price
+      s0 s5 XCHG            	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold lazyS
+      32 PLDU               	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold msg.USlot1
+      INMSG_SRC             	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold msg.USlot1 '32
+      INMSG_VALUE           	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold msg.USlot1 '32 '34
+      s5 s7 XCHG            	//  storage.owner storage.tickets storage.price storage.maxTickets storage.sold msg.USlot1 '32 '34
+      s4 s6 XCHG            	//  storage.owner storage.maxTickets storage.price storage.tickets storage.sold msg.USlot1 '32 '34
+      s3 s5 XCHG            	//  storage.owner storage.maxTickets storage.sold storage.tickets storage.price msg.USlot1 '32 '34
+      s3 s4 XCHG            	//  storage.owner storage.maxTickets storage.sold storage.price storage.tickets msg.USlot1 '32 '34
+      s1 s2 XCHG            	//  storage.owner storage.maxTickets storage.sold storage.price storage.tickets '32 msg.USlot1 '34
+      Storage.buyTickets() CALLDICT	//  storage.owner storage.maxTickets storage.sold storage.price storage.tickets
+      // 14: contract.setData(self.toCell())
+      s0 s4 XCHG
+      NEWC                  	//  storage.tickets storage.maxTickets storage.sold storage.price storage.owner b
+      STSTDADDR             	//  storage.tickets storage.maxTickets storage.sold storage.price b
+      s1 s3 XCHG            	//  storage.tickets storage.price storage.sold storage.maxTickets b
+      32 STU                	//  storage.tickets storage.price storage.sold b
+      32 STU                	//  storage.tickets storage.price b
+      SWAP                  	//  storage.tickets b storage.price
+      STGRAMS               	//  storage.tickets b
+      STOPTREF              	//  b
+      ENDC                  	//  '45
       c4 POP                	// 
-    }>                      	//  in.body lazyS
-    // 24: match (msg)
-    x{3a752f06} SDBEGINSQ   	//  in.body lazyS '10
-    NIP                     	//  in.body '10
-    IFJMP:<{                	//  in.body
-      // 6: return Storage.fromCell(contract.getData())
-      DROP                  	// 
-      // 10: contract.setData(self.toCell())
-      0 PUSHINT
-      NEWC
-      64 STU                	//  b
-      ENDC                  	//  '42
+    }>                      	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price lazyS
+    // 63: match (msg)
+    x{5fcc3d14} SDBEGINSQ   	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price lazyS '27
+    NIP                     	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price '27
+    IFJMP:<{                	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price
+      // 70: storage.resetTickets(in.senderAddress)
+      NIP                   	//  in.body storage.tickets storage.owner storage.maxTickets storage.price
+      s3 POP                	//  in.body storage.price storage.owner storage.maxTickets
+      s3 POP                	//  storage.maxTickets storage.price storage.owner
+      INMSG_SRC             	//  self.maxTickets self.price self.owner '48
+      // 50: assert(caller == self.owner) throw 200
+      OVER                  	//  self.maxTickets self.price self.owner '48 self.owner
+      SDEQ                  	//  self.maxTickets self.price self.owner '61
+      200 THROWIFNOT        	//  self.maxTickets self.price self.owner
+      // 56: self.tickets = createEmptyMap<address, uint32>()
+      NEWDICT               	//  storage.maxTickets storage.price storage.owner storage.tickets
+      // 14: contract.setData(self.toCell())
+      SWAP
+      NEWC                  	//  storage.maxTickets storage.price storage.tickets storage.owner b
+      STSTDADDR             	//  storage.maxTickets storage.price storage.tickets b
+      s1 s3 XCHG            	//  storage.tickets storage.price storage.maxTickets b
+      32 STU                	//  storage.tickets storage.price b
+      x{00000000} STSLICECONST	//  storage.tickets storage.price b
+      SWAP                  	//  storage.tickets b storage.price
+      STGRAMS               	//  storage.tickets b
+      STOPTREF              	//  b
+      ENDC                  	//  '68
       c4 POP                	// 
-    }>                      	//  in.body
-    // 38: assert(in.body.isEmpty()) throw 0xFFFF
-    16 PUSHPOW2DEC          	//  in.body '43=65535
-    SWAP                    	//  '43=65535 in.body
-    SEMPTY                  	//  '43=65535 '44
-    THROWANYIFNOT           	// 
+    }>                      	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price
+    // 77: if (!in.body.isEmpty())
+    s5 PUSH                 	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price in.body
+    SEMPTY                  	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price '69
+    IFNOT:<{                	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price
+      // 78: assert(in.body.preloadUint(32) == 0) throw 0xFFFF
+      16 PUSHPOW2DEC        	//  in.body storage.tickets storage.owner storage.maxTickets storage.sold storage.price '70=65535
+      s0 s6 XCHG            	//  '70=65535 storage.tickets storage.owner storage.maxTickets storage.sold storage.price in.body
+      32 PLDU               	//  '70=65535 storage.tickets storage.owner storage.maxTickets storage.sold storage.price '72
+      0 EQINT               	//  '70=65535 storage.tickets storage.owner storage.maxTickets storage.sold storage.price '74
+      s1 s6 XCHG            	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold '70=65535 '74
+      THROWANYIFNOT         	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold
+    }>ELSE<{
+      s5 POP                	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold
+    }>
+    // 81: storage.buyTickets(in.senderAddress, 1, in.valueCoins)
+    INMSG_SRC               	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold '75
+    1 PUSHINT               	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold '75 '77=1
+    INMSG_VALUE             	//  storage.price storage.tickets storage.owner storage.maxTickets storage.sold '75 '77=1 '78
+    s5 s7 XCHG              	//  storage.owner storage.tickets storage.price storage.maxTickets storage.sold '75 '77=1 '78
+    s4 s6 XCHG              	//  storage.owner storage.maxTickets storage.price storage.tickets storage.sold '75 '77=1 '78
+    s3 s5 XCHG              	//  storage.owner storage.maxTickets storage.sold storage.tickets storage.price '75 '77=1 '78
+    s3 s4 XCHG              	//  storage.owner storage.maxTickets storage.sold storage.price storage.tickets '75 '77=1 '78
+    Storage.buyTickets() CALLDICT	//  storage.owner storage.maxTickets storage.sold storage.price storage.tickets
+    // 14: contract.setData(self.toCell())
+    s0 s4 XCHG
+    NEWC                    	//  storage.tickets storage.maxTickets storage.sold storage.price storage.owner b
+    STSTDADDR               	//  storage.tickets storage.maxTickets storage.sold storage.price b
+    s1 s3 XCHG              	//  storage.tickets storage.price storage.sold storage.maxTickets b
+    32 STU                  	//  storage.tickets storage.price storage.sold b
+    32 STU                  	//  storage.tickets storage.price b
+    SWAP                    	//  storage.tickets b storage.price
+    STGRAMS                 	//  storage.tickets b
+    STOPTREF                	//  b
+    ENDC                    	//  '89
+    c4 POP                  	// 
   }>
-  // contracts/ticket_counter.tolk:43
-  currentCounter() PROC:<{    	// 
-    // 6: return Storage.fromCell(contract.getData())
-    c4 PUSH                 	//  '2
-    // 44: val storage = lazy Storage.load()
+  // contracts/ticket_counter.tolk:87
+  maxTickets() PROC:<{        	// 
+    // 10: return Storage.fromCell(contract.getData())
+    c4 PUSH                 	//  '6
+    // 88: val st = lazy Storage.load()
     CTOS                    	//  lazyS
-    // 45: return storage.counter
-    64 PLDU                 	//  storage
+    // 89: return st.maxTickets
+    LDSTDADDR               	//  '10 lazyS
+    NIP                     	//  lazyS
+    32 PLDU                 	//  st.maxTickets
+  }>
+  // contracts/ticket_counter.tolk:92
+  ticketsSold() PROC:<{       	// 
+    // 10: return Storage.fromCell(contract.getData())
+    c4 PUSH                 	//  '6
+    // 93: val st = lazy Storage.load()
+    CTOS                    	//  lazyS
+    // 94: return st.sold
+    LDSTDADDR               	//  '10 lazyS
+    NIP                     	//  lazyS
+    32 LDU
+    NIP                     	//  lazyS
+    32 PLDU                 	//  st.sold
+  }>
+  // contracts/ticket_counter.tolk:97
+  ticketsRemaining() PROC:<{  	// 
+    // 10: return Storage.fromCell(contract.getData())
+    c4 PUSH                 	//  '6
+    // 98: val st = lazy Storage.load()
+    CTOS                    	//  lazyS
+    // 99: return st.maxTickets - st.sold
+    LDSTDADDR               	//  '10 lazyS
+    NIP                     	//  lazyS
+    32 LDU                  	//  st.maxTickets lazyS
+    32 PLDU                 	//  st.maxTickets st.sold
+    SUB                     	//  '15
+  }>
+  // contracts/ticket_counter.tolk:102
+  pricePerTicket() PROC:<{    	// 
+    // 10: return Storage.fromCell(contract.getData())
+    c4 PUSH                 	//  '6
+    // 104: val st = lazy Storage.load()
+    CTOS                    	//  lazyS
+    // 105: return st.price
+    LDSTDADDR               	//  '10 lazyS
+    NIP                     	//  lazyS
+    64 LDU
+    NIP                     	//  lazyS
+    LDGRAMS                 	//  '12 lazyS
+    DROP                    	//  st.price
+  }>
+  // contracts/ticket_counter.tolk:108
+  totalRevenue() PROC:<{      	// 
+    // 10: return Storage.fromCell(contract.getData())
+    c4 PUSH                 	//  '6
+    // 109: val st = lazy Storage.load()
+    CTOS                    	//  lazyS
+    // 110: return st.price * st.sold
+    LDSTDADDR               	//  '10 lazyS
+    NIP                     	//  lazyS
+    32 LDU
+    NIP                     	//  lazyS
+    32 LDU                  	//  st.sold lazyS
+    LDGRAMS                 	//  st.sold '14 lazyS
+    DROP                    	//  st.sold st.price
+    MUL                     	//  '15
+  }>
+  // contracts/ticket_counter.tolk:113
+  myTickets() PROC:<{         	//  user
+    // 10: return Storage.fromCell(contract.getData())
+    c4 PUSH                 	//  user '7
+    // 114: val st = lazy Storage.load()
+    CTOS                    	//  user lazyS
+    // 115: val r = st.tickets.get(user)
+    LDSTDADDR               	//  user '11 lazyS
+    NIP                     	//  user lazyS
+    64 LDU
+    NIP                     	//  user lazyS
+    LDGRAMS                 	//  user '13 lazyS
+    NIP                     	//  user lazyS
+    PLDOPTREF               	//  user st.tickets
+    267 PUSHINT             	//  user st.tickets '21=267
+    DICTGET NULLSWAPIFNOT   	//  r.rawSlice r.isFound
+    // 116: if (r.isFound)
+    IFJMP:<{                	//  s
+      // 978: return TValue.fromSlice(self.rawSlice!
+      32 LDU                	//  '27 s
+      ENDS                  	//  '22
+    }>                      	//  r.rawSlice
+    // 119: return 0
+    DROP                    	// 
+    0 PUSHINT               	//  '28=0
   }>
 }END>c
